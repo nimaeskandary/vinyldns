@@ -6,6 +6,7 @@ import scoverage.ScoverageKeys.{coverageFailOnMinimum, coverageMinimum}
 import org.scalafmt.sbt.ScalafmtPlugin._
 import microsites._
 import ReleaseTransformations._
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 resolvers ++= additionalResolvers
 
@@ -231,7 +232,7 @@ lazy val root = (project in file(".")).enablePlugins(AutomateHeaderPlugin)
       "./bin/remove-vinyl-containers.sh" !
     },
   )
-  .aggregate(core, api, portal, dynamodb, mysql, sqs)
+  .aggregate(core, api, portal, dynamodb, mysql, sqs, portalv2JS, portalv2JVM)
 
 lazy val coreBuildSettings = Seq(
   name := "core",
@@ -374,6 +375,23 @@ lazy val portal = (project in file("modules/portal")).enablePlugins(PlayScala, A
     packageName in Universal := "portal"
   )
   .dependsOn(dynamodb, mysql)
+
+lazy val portalv2 = crossProject(JSPlatform, JVMPlatform)
+  .in(file("modules/portalv2"))
+  .settings(
+    name := "portalv2"
+  )
+  .settings(sharedSettings)
+  .jsSettings(sharedSettings)
+  .jsSettings(
+    libraryDependencies ++= portalv2JSDependencies.value
+  )
+  .jvmSettings(sharedSettings)
+  .enablePlugins(ScalaJSPlugin)
+
+lazy val portalv2JS = portalv2.js
+
+lazy val portalv2JVM = portalv2.jvm
 
 lazy val docSettings = Seq(
   git.remoteRepo := "https://github.com/vinyldns/vinyldns",
