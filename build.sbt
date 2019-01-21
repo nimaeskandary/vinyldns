@@ -378,29 +378,34 @@ lazy val portal = (project in file("modules/portal")).enablePlugins(PlayScala, A
 
 lazy val portalv2 = crossProject(JSPlatform, JVMPlatform)
   .in(file("modules/portalv2"))
-  .settings(
-    name := "portalv2",
-    unmanagedSourceDirectories in Compile += baseDirectory.value  / "shared" / "main" / "scala"
-  )
   .settings(sharedSettings)
   .settings(
+    name := "portalv2",
+    unmanagedSourceDirectories in Compile += baseDirectory.value  / "shared" / "main" / "scala", // give shared to both
     libraryDependencies ++= portalv2SharedDependencies.value
   )
-  .jsSettings(sharedSettings)
-  .jsSettings(
-    libraryDependencies ++= portalv2JsDependencies.value
-  )
-  .jvmSettings(sharedSettings)
-  .jvmSettings(
-    libraryDependencies ++= portalv2JvmDependencies.value
-  )
+  .jsSettings() // needed for portalv2.js to be initialized
+  .jvmSettings() // needed for portalv2.jvm to be initialized
   .enablePlugins(ScalaJSPlugin)
 
-lazy val portalv2JS = portalv2.js
-
-lazy val portalv2JVM = portalv2.jvm
+lazy val portalv2JS = portalv2
+  .js
+  .settings(sharedSettings)
   .settings(
-    (resources in Compile) += (fastOptJS in (portalv2JS, Compile)).value.data
+    libraryDependencies ++= portalv2JsDependencies.value,
+    npmDependencies in Compile ++= Seq(
+      "react" -> "16.5.1",
+      "react-dom" -> "16.5.1"),
+    webpackBundlingMode := BundlingMode.LibraryAndApplication() // needed to access JSExports from ScalaJSBundlerPlugin
+  )
+  .enablePlugins(ScalaJSBundlerPlugin)
+
+lazy val portalv2JVM = portalv2
+  .jvm
+  .settings(sharedSettings)
+  .settings(
+    (resources in Compile) += (webpack in fastOptJS in Compile in portalv2JS).value.head.data, // copy js files
+    libraryDependencies ++= portalv2JvmDependencies.value
   )
 
 lazy val docSettings = Seq(

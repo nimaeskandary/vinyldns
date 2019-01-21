@@ -119,7 +119,8 @@ object Dependencies {
 
   lazy val portalv2JsDependencies = Def.setting(
     Seq(
-      "org.scala-js" %%% "scalajs-dom" % "0.9.1"
+      "org.scala-js" %%% "scalajs-dom" % "0.9.1",
+      "com.github.japgolly.scalajs-react" %%% "core" % "1.3.1"
     )
   )
 
