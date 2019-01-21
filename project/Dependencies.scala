@@ -1,4 +1,6 @@
 import sbt._
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
+
 object Dependencies {
 
   lazy val akkaHttpV = "10.1.5"
@@ -104,5 +106,11 @@ object Dependencies {
     "com.typesafe.play"         %% "play-guice"                     % playV,
     "com.typesafe.play"         %% "play-ahc-ws"                    % playV,
     "com.typesafe.play"         %% "play-specs2"                    % playV % "test"
+  )
+
+  lazy val portalv2JSDependencies = Def.setting(
+    Seq(
+    "org.scala-js"              %%% "scalajs-dom"                   % "0.9.1"
+    )
   )
 }
