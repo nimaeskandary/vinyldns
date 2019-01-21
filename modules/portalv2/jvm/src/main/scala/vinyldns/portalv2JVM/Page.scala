@@ -8,7 +8,7 @@ object Page {
   val skeleton =
     html(
       head(
-        script(src := "/portalv2-fastopt.js")
+        script(src := "/portalv2-fastopt-bundle.js")
       ),
       body(
         onload := boot,
