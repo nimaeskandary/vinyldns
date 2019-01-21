@@ -18,6 +18,8 @@ object Dependencies {
   lazy val awsV = "1.11.423"
   lazy val jaxbV = "2.3.0"
   lazy val ip4sV = "1.1.1"
+  lazy val http4sVersion = "0.18.21"
+  lazy val specs2Version = "4.1.0"
 
   lazy val apiDependencies = Seq(
     "com.typesafe.akka"         %% "akka-http"                      % akkaHttpV,
@@ -108,9 +110,25 @@ object Dependencies {
     "com.typesafe.play"         %% "play-specs2"                    % playV % "test"
   )
 
-  lazy val portalv2JSDependencies = Def.setting(
+  lazy val portalv2SharedDependencies = Def.setting(
     Seq(
-    "org.scala-js"              %%% "scalajs-dom"                   % "0.9.1"
+      "com.lihaoyi" %%% "scalatags" % "0.6.2",
+      "com.lihaoyi" %%% "upickle" % "0.4.4"
+    )
+  )
+
+  lazy val portalv2JsDependencies = Def.setting(
+    Seq(
+      "org.scala-js" %%% "scalajs-dom" % "0.9.1"
+    )
+  )
+
+  lazy val portalv2JvmDependencies = Def.setting(
+    Seq(
+      "com.typesafe.akka" %% "akka-http" % "10.1.7",
+      "com.typesafe.akka" %% "akka-actor" % "2.5.19",
+      "com.typesafe.akka" %% "akka-stream" % "2.5.19",
+      "org.webjars" % "bootstrap" % "3.2.0"
     )
   )
 }

@@ -379,19 +379,29 @@ lazy val portal = (project in file("modules/portal")).enablePlugins(PlayScala, A
 lazy val portalv2 = crossProject(JSPlatform, JVMPlatform)
   .in(file("modules/portalv2"))
   .settings(
-    name := "portalv2"
+    name := "portalv2",
+    unmanagedSourceDirectories in Compile += baseDirectory.value  / "shared" / "main" / "scala"
   )
   .settings(sharedSettings)
+  .settings(
+    libraryDependencies ++= portalv2SharedDependencies.value
+  )
   .jsSettings(sharedSettings)
   .jsSettings(
-    libraryDependencies ++= portalv2JSDependencies.value
+    libraryDependencies ++= portalv2JsDependencies.value
   )
   .jvmSettings(sharedSettings)
+  .jvmSettings(
+    libraryDependencies ++= portalv2JvmDependencies.value
+  )
   .enablePlugins(ScalaJSPlugin)
 
 lazy val portalv2JS = portalv2.js
 
 lazy val portalv2JVM = portalv2.jvm
+  .settings(
+    (resources in Compile) += (fastOptJS in (portalv2JS, Compile)).value.data
+  )
 
 lazy val docSettings = Seq(
   git.remoteRepo := "https://github.com/vinyldns/vinyldns",
