@@ -3,8 +3,8 @@ package vinyldns.portalv2JVM
 import scalatags.Text.all._
 
 object Page {
-  val boot =
-    "Client.main(document.getElementById('contents'))"
+  val containerId = "root"
+  val boot = s"ReactApp.main($containerId)"
   val skeleton =
     html(
       head(
@@ -12,7 +12,7 @@ object Page {
       ),
       body(
         onload := boot,
-        div(id := "contents")
+        div(id := containerId)
       )
     )
 }

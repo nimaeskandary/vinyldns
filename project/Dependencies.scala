@@ -20,6 +20,9 @@ object Dependencies {
   lazy val ip4sV = "1.1.1"
   lazy val http4sVersion = "0.18.21"
   lazy val specs2Version = "4.1.0"
+  lazy val scalaJSReactVersion = "1.3.1"
+  lazy val scalaCssVersion = "0.5.5"
+  lazy val reactJsVersion = "16.5.1"
 
   lazy val apiDependencies = Seq(
     "com.typesafe.akka"         %% "akka-http"                      % akkaHttpV,
@@ -120,7 +123,10 @@ object Dependencies {
   lazy val portalv2JsDependencies = Def.setting(
     Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-      "com.github.japgolly.scalajs-react" %%% "core" % "1.3.1"
+      "com.github.japgolly.scalajs-react" %%% "core" % scalaJSReactVersion,
+      "com.github.japgolly.scalajs-react" %%% "extra" % scalaJSReactVersion,
+      "com.github.japgolly.scalacss" %%% "core" % scalaCssVersion,
+      "com.github.japgolly.scalacss" %%% "ext-react" % scalaCssVersion
     )
   )
 
@@ -131,5 +137,10 @@ object Dependencies {
       "com.typesafe.akka" %% "akka-stream" % "2.5.19",
       "org.webjars" % "bootstrap" % "3.2.0"
     )
+  )
+
+  lazy val portalv2NpmDependencies = Seq(
+    "react" -> reactJsVersion,
+    "react-dom" -> reactJsVersion
   )
 }

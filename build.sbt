@@ -47,7 +47,7 @@ def scalaStyleSettings: Seq[Def.Setting[_]] = scalaStyleCompile ++ scalaStyleTes
 // settings that should be inherited by all projects
 lazy val sharedSettings = Seq(
   organization := "vinyldns",
-  scalaVersion := "2.12.7",
+  scalaVersion := "2.12.8",
   organizationName := "Comcast Cable Communications Management, LLC",
   startYear := Some(2018),
   licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
@@ -393,9 +393,7 @@ lazy val portalv2JS = portalv2
   .settings(sharedSettings)
   .settings(
     libraryDependencies ++= portalv2JsDependencies.value,
-    npmDependencies in Compile ++= Seq(
-      "react" -> "16.5.1",
-      "react-dom" -> "16.5.1"),
+    npmDependencies in Compile ++= portalv2NpmDependencies,
     webpackBundlingMode := BundlingMode.LibraryAndApplication() // needed to access JSExports from ScalaJSBundlerPlugin
   )
   .enablePlugins(ScalaJSBundlerPlugin)
