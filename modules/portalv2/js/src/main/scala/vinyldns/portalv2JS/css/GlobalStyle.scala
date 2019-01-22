@@ -1,16 +1,19 @@
 package vinyldns.portalv2JS.css
 
-import scalacss.ProdDefaults._
+object GlobalStyle {
 
-object GlobalStyle extends StyleSheet.Inline {
+  val CssSettings = scalacss.devOrProdDefaults
+  import CssSettings._
 
-  import dsl._
+  object styleSheet extends StyleSheet.Inline {
+    import dsl._
 
-  style(
-    unsafeRoot("body")(
-      margin.`0`,
-      padding.`0`,
-      fontSize(14.px)
+    style(
+      unsafeRoot("body")(
+        margin.`0`,
+        padding.`0`,
+        fontSize(14.px)
+      )
     )
-  )
+  }
 }

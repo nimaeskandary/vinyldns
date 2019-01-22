@@ -5,7 +5,7 @@ import japgolly.scalajs.react.component.Scala.Unmounted
 import japgolly.scalajs.react.vdom.html_<^._
 import scalacss.ScalaCssReact._
 
-object HomePage {
+object OtherPage {
   val CssSettings = scalacss.devOrProdDefaults
   import CssSettings._
 
@@ -16,7 +16,7 @@ object HomePage {
 
   val component = {
     ScalaComponent.builder
-      .static("HomePage")(<.div(Style.content, "Scala js react template"))
+      .static("OtherPage")(<.div(Style.content, "Other"))
       .build
   }
 

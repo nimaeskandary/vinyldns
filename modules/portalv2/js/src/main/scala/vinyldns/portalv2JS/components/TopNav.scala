@@ -1,6 +1,5 @@
 package vinyldns.portalv2JS.components
 
-import scalacss.ProdDefaults._
 import scalacss.ScalaCssReact._
 import vinyldns.portalv2JS.models.Menu
 import vinyldns.portalv2JS.routes.AppRouter.AppPage
@@ -11,6 +10,9 @@ import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
 
 object TopNav {
+
+  val CssSettings = scalacss.devOrProdDefaults
+  import CssSettings._
 
   object Style extends StyleSheet.Inline {
 
