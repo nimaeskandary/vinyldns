@@ -45,6 +45,8 @@ class FrontendController @Inject()(
   implicit lazy val customLinks: CustomLinks = CustomLinks(configuration)
   implicit lazy val meta: Meta = Meta(configuration)
   private val logger = LoggerFactory.getLogger(classOf[FrontendController])
+  private val v2ClientEnabled =
+    configuration.getOptional[Boolean]("v2client.enabled").getOrElse(false)
 
   def loginPage(): Action[AnyContent] = Action { implicit request =>
     if (oidcEnabled) {
@@ -93,6 +95,11 @@ class FrontendController @Inject()(
   def noAccess(): Action[AnyContent] = Action { implicit request =>
     logger.info(s"User account for '${getLoggedInUser(request)}' is locked.")
     Unauthorized(views.html.noAccess())
+  }
+
+  def clientV2(unusedReactRoute: String): Action[AnyContent] = Action { implicit request =>
+    if (v2ClientEnabled) Ok(views.html.v2client())
+    else Redirect("/")
   }
 
   def index(): Action[AnyContent] = userAction.async { implicit request =>

@@ -6,6 +6,7 @@ import scoverage.ScoverageKeys.{coverageFailOnMinimum, coverageMinimum}
 import org.scalafmt.sbt.ScalafmtPlugin._
 import microsites._
 import ReleaseTransformations._
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 resolvers ++= additionalResolvers
 
@@ -46,7 +47,7 @@ def scalaStyleSettings: Seq[Def.Setting[_]] = scalaStyleCompile ++ scalaStyleTes
 // settings that should be inherited by all projects
 lazy val sharedSettings = Seq(
   organization := "vinyldns",
-  scalaVersion := "2.12.7",
+  scalaVersion := "2.12.8",
   organizationName := "Comcast Cable Communications Management, LLC",
   startYear := Some(2018),
   licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
@@ -241,7 +242,7 @@ lazy val root = (project in file(".")).enablePlugins(AutomateHeaderPlugin)
       "./bin/remove-vinyl-containers.sh" !
     },
   )
-  .aggregate(core, api, portal, dynamodb, mysql, sqs)
+  .aggregate(core, api, portal, dynamodb, mysql, sqs, v2client)
 
 lazy val coreBuildSettings = Seq(
   name := "core",
@@ -341,7 +342,7 @@ val preparePortal = TaskKey[Unit]("preparePortal", "Runs NPM to prepare portal f
 val checkJsHeaders = TaskKey[Unit]("checkJsHeaders", "Runs script to check for APL 2.0 license headers")
 val createJsHeaders = TaskKey[Unit]("createJsHeaders", "Runs script to prepend APL 2.0 license headers to files")
 
-lazy val portal = (project in file("modules/portal")).enablePlugins(PlayScala, AutomateHeaderPlugin)
+lazy val portal = (project in file("modules/portal")).enablePlugins(PlayScala, AutomateHeaderPlugin, WebScalaJSBundlerPlugin)
   .settings(sharedSettings)
   .settings(testSettings)
   .settings(portalPublishSettings)
@@ -381,9 +382,24 @@ lazy val portal = (project in file("modules/portal")).enablePlugins(PlayScala, A
     },
 
     // change the name of the output to portal.zip
-    packageName in Universal := "portal"
+    packageName in Universal := "portal",
+
+    scalaJSProjects := Seq(v2client),
+
+    pipelineStages in Assets := Seq(scalaJSPipeline)
   )
   .dependsOn(dynamodb, mysql)
+
+lazy val v2client = (project in file("modules/v2client"))
+  .enablePlugins(AutomateHeaderPlugin, ScalaJSBundlerPlugin)
+  .settings(sharedSettings)
+  .settings(
+    name := "v2client",
+    libraryDependencies ++= portalv2JsDependencies.value,
+    npmDependencies in Compile ++= portalv2NpmDependencies,
+    webpackBundlingMode := BundlingMode.LibraryAndApplication()
+  )
+  .dependsOn(core)
 
 lazy val docSettings = Seq(
   git.remoteRepo := "https://github.com/vinyldns/vinyldns",
