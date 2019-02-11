@@ -13,20 +13,30 @@ object Server {
     implicit val system: akka.actor.ActorSystem = ActorSystem()
     implicit val materializer: akka.stream.ActorMaterializer = ActorMaterializer()
 
+    val vinylDNSApiClient = VinylDNSApiClient()
+
     val port = Properties.envOrElse("PORT", "8080").toInt
     val route = {
-      get {
-        pathSingleSlash {
-          complete {
-            HttpEntity(
-              ContentTypes.`text/html(UTF-8)`,
-              Page.skeleton.render
-            )
-          }
+      (get & path("server")) {
+        complete {
+          vinylDNSApiClient.executeRequest()
+        }
+      } ~
+        (get & path("portalv2-fastopt-bundle.js")) {
+          getFromResource("portalv2-fastopt-bundle.js")
         } ~
-          getFromResourceDirectory("")
-      }
+        path(""".*""".r) { _ =>
+          get {
+            complete {
+              HttpEntity(
+                ContentTypes.`text/html(UTF-8)`,
+                Page.skeleton.render
+              )
+            }
+          }
+        }
     }
+
     Http().bindAndHandle(route, "0.0.0.0", port = port)
   }
 }

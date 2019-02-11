@@ -396,6 +396,7 @@ lazy val portalv2JS = portalv2
     npmDependencies in Compile ++= portalv2NpmDependencies,
     webpackBundlingMode := BundlingMode.LibraryAndApplication() // needed to access JSExports from ScalaJSBundlerPlugin
   )
+  .dependsOn(core)
   .enablePlugins(ScalaJSBundlerPlugin)
 
 lazy val portalv2JVM = portalv2
@@ -405,6 +406,7 @@ lazy val portalv2JVM = portalv2
     (resources in Compile) += (webpack in fastOptJS in Compile in portalv2JS).value.head.data, // copy js files
     libraryDependencies ++= portalv2JvmDependencies.value
   )
+  .dependsOn(core)
 
 lazy val docSettings = Seq(
   git.remoteRepo := "https://github.com/vinyldns/vinyldns",

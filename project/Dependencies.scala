@@ -115,27 +115,27 @@ object Dependencies {
 
   lazy val portalv2SharedDependencies = Def.setting(
     Seq(
-      "com.lihaoyi" %%% "scalatags" % "0.6.2",
-      "com.lihaoyi" %%% "upickle" % "0.4.4"
+      "com.lihaoyi"             %%% "scalatags"                     % "0.6.2",
+      "com.lihaoyi"             %%% "upickle"                       % "0.4.4"
     )
   )
 
   lazy val portalv2JsDependencies = Def.setting(
     Seq(
-      "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-      "com.github.japgolly.scalajs-react" %%% "core" % scalaJSReactVersion,
-      "com.github.japgolly.scalajs-react" %%% "extra" % scalaJSReactVersion,
-      "com.github.japgolly.scalacss" %%% "core" % scalaCssVersion,
-      "com.github.japgolly.scalacss" %%% "ext-react" % scalaCssVersion
+      "org.scala-js"                      %%% "scalajs-dom"         % "0.9.1",
+      "com.github.japgolly.scalajs-react" %%% "core"                % scalaJSReactVersion,
+      "com.github.japgolly.scalajs-react" %%% "extra"               % scalaJSReactVersion,
+      "com.github.japgolly.scalacss"      %%% "core"                % scalaCssVersion,
+      "com.github.japgolly.scalacss"      %%% "ext-react"           % scalaCssVersion
     )
   )
 
   lazy val portalv2JvmDependencies = Def.setting(
     Seq(
-      "com.typesafe.akka" %% "akka-http" % "10.1.7",
-      "com.typesafe.akka" %% "akka-actor" % "2.5.19",
-      "com.typesafe.akka" %% "akka-stream" % "2.5.19",
-      "org.webjars" % "bootstrap" % "3.2.0"
+      "com.typesafe.akka"       %% "akka-http"                      % "10.1.7",
+      "com.typesafe.akka"       %% "akka-actor"                     % "2.5.19",
+      "com.typesafe.akka"       %% "akka-stream"                    % "2.5.19",
+      "com.amazonaws"           %  "aws-java-sdk-core"              % awsV withSources()
     )
   )
 
