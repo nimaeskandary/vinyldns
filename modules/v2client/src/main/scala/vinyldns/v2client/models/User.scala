@@ -14,27 +14,18 @@
  * limitations under the License.
  */
 
-package vinyldns.v2client.pages
+package vinyldns.v2client.models
+import upickle.default.{ReadWriter => RW, macroRW}
 
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.component.Scala.Unmounted
-import japgolly.scalajs.react.vdom.html_<^._
-import scalacss.ScalaCssReact._
+case class User(
+    userName: String,
+    firstName: String,
+    lastName: String,
+    email: String,
+    isSuper: Boolean,
+    id: String,
+    lockStatus: String)
 
-object OtherPage {
-  val CssSettings = scalacss.devOrProdDefaults
-  import CssSettings._
-
-  object Style extends StyleSheet.Inline {
-    import dsl._
-    val content = style(textAlign.center, fontSize(30.px), minHeight(450.px), paddingTop(40.px))
-  }
-
-  val component = {
-    ScalaComponent.builder
-      .static("OtherPage")(<.div(Style.content, "Other"))
-      .build
-  }
-
-  def apply(): Unmounted[Unit, Unit, Unit] = component()
+object User {
+  implicit val rw: RW[User] = macroRW
 }

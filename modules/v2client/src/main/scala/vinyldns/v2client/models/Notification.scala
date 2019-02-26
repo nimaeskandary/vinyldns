@@ -14,22 +14,10 @@
  * limitations under the License.
  */
 
-package vinyldns.v2client
+package vinyldns.v2client.models
 
-import org.scalajs.dom
-import org.scalajs.dom.document
-import vinyldns.v2client.css.AppCSS
-import vinyldns.v2client.routes.AppRouter
-
-import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
-
-@JSExportTopLevel("ReactApp")
-object ReactApp {
-  val csrf: String = document.getElementById("csrf").getAttribute("content")
-
-  @JSExport
-  def main(containerId: String): Unit = {
-    AppCSS.load
-    AppRouter.router().renderIntoDOM(dom.document.getElementById(containerId))
-  }
-}
+case class Notification(
+    customMessage: Option[String] = None,
+    ajaxResponseMessage: Option[String] = None,
+    isError: Boolean = false
+)

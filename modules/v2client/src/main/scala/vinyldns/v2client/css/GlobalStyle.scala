@@ -24,12 +24,22 @@ object GlobalStyle {
   object styleSheet extends StyleSheet.Inline {
     import dsl._
 
-    style(
-      unsafeRoot("body")(
-        margin.`0`,
-        padding.`0`,
-        fontSize(14.px)
-      )
+    val fullViewHeight = style(height :=! "100vh")
+    val width100 = style(width :=! "100%")
+    val overrideDisplay = style(display.block)
+    val cursorPointer = style(cursor.pointer)
+    val maxHeight100 = style(maxHeight :=! "100%")
+    val maxWidth100 = style(maxWidth :=! "100%")
+    val backgroundWhite = style(backgroundColor :=! "white")
+    val notifyOuter = style(
+      width :=! "300px",
+      right :=! "36px",
+      top :=! "36px",
+      cursor.auto,
+      position.absolute,
+      wordWrap.breakWord,
+      zIndex :=! "2000"
     )
+    val notifyInner = style(minHeight :=! "16px")
   }
 }

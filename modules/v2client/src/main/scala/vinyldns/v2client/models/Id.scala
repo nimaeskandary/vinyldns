@@ -14,23 +14,11 @@
  * limitations under the License.
  */
 
-package vinyldns.v2client.components
+package vinyldns.v2client.models
+import upickle.default.{ReadWriter => RW, macroRW}
 
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.component.Scala.Unmounted
-import japgolly.scalajs.react.vdom.html_<^._
+case class Id(id: String)
 
-object Footer {
-
-  val component = ScalaComponent.builder
-    .static("Footer")(
-      <.footer(
-        ^.textAlign.center,
-        <.div(^.borderBottom := "1px solid grey", ^.padding := "0px"),
-        <.p(^.paddingTop := "5px", "Footer")
-      )
-    )
-    .build
-
-  def apply(): Unmounted[Unit, Unit, Unit] = component()
+object Id {
+  implicit val rw: RW[Id] = macroRW
 }
