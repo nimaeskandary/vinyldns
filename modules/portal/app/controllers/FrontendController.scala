@@ -70,7 +70,7 @@ class FrontendController @Inject()(
     Unauthorized(views.html.noAccess())
   }
 
-  def clientV2(unusedReactRoute: String): Action[AnyContent] = Action { implicit request =>
+  def clientV2(unusedReactRoute: String): Action[AnyContent] = userAction { implicit request =>
     if (v2ClientEnabled) Ok(views.html.v2client(request))
     else Redirect("/")
   }
