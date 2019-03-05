@@ -6,7 +6,6 @@ import scoverage.ScoverageKeys.{coverageFailOnMinimum, coverageMinimum}
 import org.scalafmt.sbt.ScalafmtPlugin._
 import microsites._
 import ReleaseTransformations._
-import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 resolvers ++= additionalResolvers
 
@@ -232,7 +231,7 @@ lazy val root = (project in file(".")).enablePlugins(AutomateHeaderPlugin)
       "./bin/remove-vinyl-containers.sh" !
     },
   )
-  .aggregate(core, api, portal, dynamodb, mysql, sqs, v2client)
+  .aggregate(core, api, portal, dynamodb, mysql, sqs, client)
 
 lazy val coreBuildSettings = Seq(
   name := "core",
@@ -343,7 +342,7 @@ lazy val portal = (project in file("modules/portal")).enablePlugins(PlayScala, A
     routesGenerator := InjectedRoutesGenerator,
     coverageExcludedPackages := "<empty>;views.html.*;router.*",
     javaOptions in Test += "-Dconfig.file=conf/application-test.conf",
-    
+
     // ads the version when working locally with sbt run
     PlayKeys.devSettings += "vinyldns.base-version" -> (version in ThisBuild).value,
 
@@ -374,20 +373,22 @@ lazy val portal = (project in file("modules/portal")).enablePlugins(PlayScala, A
     // change the name of the output to portal.zip
     packageName in Universal := "portal",
 
-    scalaJSProjects := Seq(v2client),
+    scalaJSProjects := Seq(client),
 
     pipelineStages in Assets := Seq(scalaJSPipeline)
   )
   .dependsOn(dynamodb, mysql)
 
-lazy val v2client = (project in file("modules/v2client"))
-  .enablePlugins(AutomateHeaderPlugin, ScalaJSBundlerPlugin, ScalaJSPlugin)
+lazy val client = (project in file("modules/client"))
+  .enablePlugins(AutomateHeaderPlugin, ScalaJSBundlerPlugin)
   .settings(sharedSettings)
+  .settings(testSettings)
   .settings(
-    name := "v2client",
-    libraryDependencies ++= portalv2JsDependencies.value,
-    npmDependencies in Compile ++= portalv2NpmDependencies,
-    webpackBundlingMode := BundlingMode.LibraryAndApplication(),
+    name := "client",
+    libraryDependencies ++= clientDependencies.value ++ clientTestDependencies.value.map(_ % "test"),
+    requireJsDomEnv in Test := true,
+    npmDependencies in Compile ++= clientNpmDependencies,
+    webpackBundlingMode := BundlingMode.LibraryOnly(),
     unmanagedSourceDirectories in Compile ++= (unmanagedSourceDirectories in (core, Compile)).value
   )
   .dependsOn(core)

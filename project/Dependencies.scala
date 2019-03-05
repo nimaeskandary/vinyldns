@@ -12,13 +12,13 @@ object Dependencies {
   lazy val catsEffectV = "1.0.0"
   lazy val configV = "1.3.2"
   lazy val scalikejdbcV = "3.3.1"
-  lazy val scalaTestV = "3.0.4"
+  lazy val scalaTestV = "3.0.6"
   lazy val scodecV = "1.1.5"
   lazy val playV = "2.6.19"
   lazy val awsV = "1.11.423"
   lazy val jaxbV = "2.3.0"
   lazy val ip4sV = "1.1.1"
-  lazy val scalaJSReactVersion = "1.3.1"
+  lazy val scalaJSReactVersion = "1.4.0"
   lazy val scalaCssVersion = "0.5.5"
   lazy val reactJsVersion = "16.5.1"
 
@@ -111,20 +111,30 @@ object Dependencies {
     "com.typesafe.play"         %% "play-specs2"                    % playV % "test"
   )
 
-  lazy val portalv2JsDependencies = Def.setting(
+  lazy val clientDependencies = Def.setting(
     // scala js projects need the `%%%` to know to get the scala js version
     Seq(
-      "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-      "com.github.japgolly.scalajs-react" %%% "core" % scalaJSReactVersion,
-      "com.github.japgolly.scalajs-react" %%% "extra" % scalaJSReactVersion,
-      "com.github.japgolly.scalacss" %%% "core" % scalaCssVersion,
-      "com.github.japgolly.scalacss" %%% "ext-react" % scalaCssVersion,
-      "com.lihaoyi" %%% "upickle" % "0.7.1",
-      "org.typelevel" %%% "cats-effect" % catsEffectV
+      "org.scala-js" %%% "scalajs-dom"                % "0.9.1",
+      "com.github.japgolly.scalajs-react"             %%% "core"              % scalaJSReactVersion,
+      "com.github.japgolly.scalajs-react"             %%% "extra"             % scalaJSReactVersion,
+      "com.github.japgolly.scalacss"                  %%% "core"              % scalaCssVersion,
+      "com.github.japgolly.scalacss"                  %%% "ext-react"         % scalaCssVersion,
+      "com.lihaoyi"                                   %%% "upickle"           % "0.7.1",
+      "org.typelevel"                                 %%% "cats-effect"       % catsEffectV
     )
   )
 
-  lazy val portalv2NpmDependencies = Seq(
+  lazy val clientTestDependencies = Def.setting(
+    Seq(
+      "com.github.japgolly.scalajs-react"             %%% "test"                % scalaJSReactVersion,
+      "org.scalatest"                                 %%% "scalatest"           % scalaTestV,
+      "com.github.japgolly.test-state"                %%% "core"                % "2.3.0",
+      "com.github.japgolly.test-state"                %%% "ext-scalajs-react"   % "2.3.0",
+      "org.scalamock"                                 %%% "scalamock"           % "4.1.0"
+    )
+  )
+
+  lazy val clientNpmDependencies = Seq(
     "react" -> reactJsVersion,
     "react-dom" -> reactJsVersion
   )
