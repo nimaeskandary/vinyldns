@@ -19,6 +19,12 @@ package vinyldns.client.models.zone
 import upickle.default.{ReadWriter, macroRW}
 import vinyldns.client.models.OptionRW
 
+case class Rules(rules: List[ACLRule])
+
+object Rules {
+  implicit val rw: ReadWriter[Rules] = macroRW
+}
+
 case class ACLRule(
     accessLevel: String,
     recordTypes: Seq[String],

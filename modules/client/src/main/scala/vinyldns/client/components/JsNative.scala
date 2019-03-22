@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
-package vinyldns.client.models
+package vinyldns.client.components
 
-case class Notification(
-    customMessage: Option[String] = None,
-    ajaxResponseMessage: Option[String] = None,
-    isError: Boolean = false
-)
+import japgolly.scalajs.react.Callback
+import scala.scalajs.js.timers.setTimeout
+
+object JsNative {
+  final val ONE_SECOND_IN_MILLIS = 1000.0
+
+  final val HALF_SECOND_IN_MILLIS = ONE_SECOND_IN_MILLIS / 2
+  final val FIVE_SECONDS_IN_MILLIS = ONE_SECOND_IN_MILLIS * 5
+
+  // hook to javascript timeout function
+  def withDelay(millis: Double, cb: Callback): Callback =
+    Callback(setTimeout(millis)(cb.runNow()))
+}

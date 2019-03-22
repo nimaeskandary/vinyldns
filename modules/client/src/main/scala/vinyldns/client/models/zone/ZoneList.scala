@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
-package vinyldns.client.models
+package vinyldns.client.models.zone
 
-object FQDN {
-  def toAbsolute(name: String): String =
-    if (name.endsWith(".")) name
-    else name + "."
+import upickle.default.{ReadWriter, macroRW}
+import vinyldns.client.models.OptionRW
+
+case class ZoneList(
+    zones: List[Zone],
+    maxItems: Int,
+    nameFilter: Option[String] = None,
+    startFrom: Option[Int] = None,
+    nextId: Option[Int] = None)
+
+object ZoneList extends OptionRW {
+  implicit val rw: ReadWriter[ZoneList] = macroRW
 }

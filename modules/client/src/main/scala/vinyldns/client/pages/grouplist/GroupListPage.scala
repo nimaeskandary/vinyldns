@@ -64,15 +64,52 @@ object GroupListPage extends PropsFromAppRouter {
                   ^.className := "panel-heading",
                   <.div(
                     ^.className := "btn-group",
+                    // create button
                     <.button(
                       ^.className := "btn btn-default test-create-group",
                       ^.`type` := "button",
                       ^.onClick --> makeCreateFormVisible,
                       <.span(^.className := "fa fa-plus-square"),
                       "  Create Group"
+                    ),
+                    // refresh button
+                    <.button(
+                      ^.className := "btn btn-default test-refresh-groups",
+                      ^.onClick --> { resetPageInfo >> refreshGroupsTable },
+                      ^.`type` := "button",
+                      <.span(^.className := "fa fa-refresh"),
+                      "  Refresh"
+                    )
+                  ),
+                  // search bar
+                  <.form(
+                    ^.className := "pull-right input-group test-search-form",
+                    ^.onSubmit ==> { e: ReactEventFromInput =>
+                      e.preventDefaultCB >> resetPageInfo >> refreshGroupsTable
+                    },
+                    <.div(
+                      ^.className := "input-group",
+                      <.span(
+                        ^.className := "input-group-btn",
+                        <.button(
+                          ^.className := "btn btn-primary btn-left-round",
+                          ^.`type` := "submit",
+                          <.span(
+                            ^.className := "fa fa-search"
+                          )
+                        )
+                      ),
+                      <.input(
+                        ^.className := "form-control test-groupNameFilter",
+                        ^.placeholder := "Group Name",
+                        ^.onChange ==> { e: ReactEventFromInput =>
+                          updateGroupNameFilter(e.target.value)
+                        }
+                      )
                     )
                   )
                 ),
+                // table
                 refToTable.component(GroupsTable.Props(P.http, P.router))
               )
             )
@@ -81,10 +118,26 @@ object GroupListPage extends PropsFromAppRouter {
         createGroupModal(P, S.showCreateGroup)
       )
 
-    def refreshGroupsTable(): Callback =
+    def refreshGroupsTable: Callback =
       refToTable.get
         .map { mounted =>
           mounted.backend.listGroups(mounted.props, mounted.state)
+        }
+        .getOrElse(Callback.empty)
+        .runNow()
+
+    def resetPageInfo: Callback =
+      refToTable.get
+        .map { mounted =>
+          mounted.backend.resetPageInfo
+        }
+        .getOrElse(Callback.empty)
+        .runNow()
+
+    def updateGroupNameFilter(value: String): Callback =
+      refToTable.get
+        .map { mounted =>
+          mounted.backend.updateGroupNameFilter(value)
         }
         .getOrElse(Callback.empty)
         .runNow()
@@ -93,7 +146,7 @@ object GroupListPage extends PropsFromAppRouter {
       if (isVisible)
         GroupModal(
           GroupModal
-            .Props(P.http, _ => makeCreateFormInvisible, _ => refreshGroupsTable()))
+            .Props(P.http, _ => makeCreateFormInvisible, _ => refreshGroupsTable))
       else TagMod.empty
 
     def makeCreateFormVisible: Callback =

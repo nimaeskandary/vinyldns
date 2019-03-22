@@ -18,14 +18,13 @@ package vinyldns.client.http
 
 import upickle.default.read
 import vinyldns.client.models.membership.{Group, GroupList, MemberList, User}
-import vinyldns.client.models.zone.Zone
+import vinyldns.client.models.zone.{Zone, ZoneList}
 
 import scala.scalajs.js.URIUtils
 import scala.util.Try
 
 sealed trait RequestRoute[T] {
   def path: String
-
   def parse(httpResponse: HttpResponse): Option[T]
 
   def toQueryString(map: Map[String, String]): String =
@@ -43,11 +42,16 @@ object CurrentUserRoute extends RequestRoute[User] {
     Try(Option(read[User](httpResponse.responseText))).getOrElse(None)
 }
 
-final case class ListGroupsRoute(nameFilter: Option[String] = None)
+final case class ListGroupsRoute(
+    maxItems: Int = 100,
+    nameFilter: Option[String] = None,
+    startFrom: Option[String] = None)
     extends RequestRoute[GroupList] {
   val queryStrings =
     Map.empty[String, String] ++
-      nameFilter.map(f => "groupNameFilter" -> f)
+      Map("maxItems" -> maxItems.toString) ++
+      nameFilter.map(f => "nameFilter" -> f) ++
+      startFrom.map(s => "startFrom" -> s)
 
   def path: String = s"/api/groups${toQueryString(queryStrings)}"
   def parse(httpResponse: HttpResponse): Option[GroupList] =
@@ -97,6 +101,28 @@ object CreateZoneRoute extends RequestRoute[Zone] {
 }
 
 final case class UpdateZoneRoute(id: String) extends RequestRoute[Zone] {
+  def path: String = s"/api/zones/$id"
+  def parse(httpResponse: HttpResponse): Option[Zone] =
+    Try(Option(read[Zone](httpResponse.responseText))).getOrElse(None)
+}
+
+final case class ListZonesRoute(
+    maxItems: Int = 100,
+    nameFilter: Option[String] = None,
+    startFrom: Option[Int] = None)
+    extends RequestRoute[ZoneList] {
+  val queryStrings =
+    Map.empty[String, String] ++
+      Map("maxItems" -> maxItems.toString) ++
+      nameFilter.map(f => "nameFilter" -> f) ++
+      startFrom.map(s => "startFrom" -> s.toString)
+
+  def path: String = s"/api/zones${toQueryString(queryStrings)}"
+  def parse(httpResponse: HttpResponse): Option[ZoneList] =
+    Try(Option(read[ZoneList](httpResponse.responseText))).getOrElse(None)
+}
+
+final case class DeleteZoneRoute(id: String) extends RequestRoute[Zone] {
   def path: String = s"/api/zones/$id"
   def parse(httpResponse: HttpResponse): Option[Zone] =
     Try(Option(read[Zone](httpResponse.responseText))).getOrElse(None)

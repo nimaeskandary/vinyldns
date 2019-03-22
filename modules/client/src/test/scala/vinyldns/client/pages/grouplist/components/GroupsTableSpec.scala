@@ -30,7 +30,7 @@ import scala.language.existentials
 
 class GroupsTableSpec extends WordSpec with Matchers with MockFactory with SharedTestData {
   val mockRouter = mock[RouterCtl[Page]]
-  val initialGroupList = GroupList(generateGroups(10).toList, Some(100))
+  val initialGroupList = GroupList(generateGroups(10).toList, 100)
 
   trait Fixture {
     val mockHttp = mock[Http]
@@ -50,69 +50,6 @@ class GroupsTableSpec extends WordSpec with Matchers with MockFactory with Share
 
       ReactTestUtils.withRenderedIntoDocument(GroupsTable(props)) { c =>
         c.state.groupsList shouldBe Some(initialGroupList)
-      }
-    }
-
-    "update groups when hitting refresh button" in new Fixture {
-      val updatedGroupsList = GroupList(generateGroups(2).toList, Some(100))
-      val props =
-        GroupsTable.Props(mockHttp, mockRouter)
-
-      ReactTestUtils.withRenderedIntoDocument(GroupsTable(props)) { c =>
-        c.state.groupsList shouldBe Some(initialGroupList)
-
-        (mockHttp.get[GroupList] _)
-          .expects(ListGroupsRoute(), *, *)
-          .once()
-          .onCall { (_, onSuccess, _) =>
-            onSuccess.apply(mock[HttpResponse], Some(updatedGroupsList))
-          }
-
-        val refreshButton =
-          ReactTestUtils.findRenderedDOMComponentWithClass(c, "test-refresh-groups")
-        Simulate.click(refreshButton)
-
-        c.state.groupsList shouldBe Some(updatedGroupsList)
-      }
-    }
-
-    "call http.get with groupNameFilter when someone uses search button" in new Fixture {
-      val props =
-        GroupsTable.Props(mockHttp, mockRouter)
-
-      (mockHttp.get[GroupList] _)
-        .expects(ListGroupsRoute(Some("filter")), *, *)
-        .once()
-        .returns(Callback.empty)
-
-      ReactTestUtils.withRenderedIntoDocument(GroupsTable(props)) { c =>
-        val input = ReactTestUtils.findRenderedDOMComponentWithClass(c, "test-groupNameFilter")
-        Simulate.change(input, SimEvent.Change("filter"))
-
-        c.state.groupNameFilter shouldBe Some("filter")
-
-        val form = ReactTestUtils.findRenderedDOMComponentWithClass(c, "test-search-form")
-        Simulate.submit(form)
-      }
-    }
-
-    "call http.get with groupNameFilter when someone uses refresh button" in new Fixture {
-      val props =
-        GroupsTable.Props(mockHttp, mockRouter)
-
-      (mockHttp.get[GroupList] _)
-        .expects(ListGroupsRoute(Some("filter")), *, *)
-        .once()
-        .returns(Callback.empty)
-
-      ReactTestUtils.withRenderedIntoDocument(GroupsTable(props)) { c =>
-        val input = ReactTestUtils.findRenderedDOMComponentWithClass(c, "test-groupNameFilter")
-        Simulate.change(input, SimEvent.Change("filter"))
-
-        c.state.groupNameFilter shouldBe Some("filter")
-
-        val refresh = ReactTestUtils.findRenderedDOMComponentWithClass(c, "test-refresh-groups")
-        Simulate.click(refresh)
       }
     }
 
@@ -141,7 +78,7 @@ class GroupsTableSpec extends WordSpec with Matchers with MockFactory with Share
         .expects(ListGroupsRoute(), *, *)
         .once()
         .onCall { (_, onSuccess, _) =>
-          onSuccess.apply(mock[HttpResponse], Some(GroupList(List(), Some(100))))
+          onSuccess.apply(mock[HttpResponse], Some(GroupList(List(), 100)))
         }
 
       val props =
