@@ -21,7 +21,6 @@ import vinyldns.client.models.zone.{Zone, ZoneConnection, ZoneCreateInfo}
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.component.Scala.Unmounted
 import japgolly.scalajs.react.vdom.html_<^._
-import vinyldns.client.components.ValidatedInputField.DatalistOptions
 import vinyldns.client.components._
 import vinyldns.client.http.{CreateZoneRoute, Http, HttpResponse}
 import vinyldns.client.models.membership.GroupList
@@ -29,6 +28,7 @@ import vinyldns.client.components.AlertBox.addNotification
 import upickle.default.write
 import vinyldns.client.css.GlobalStyle
 import vinyldns.client.components.JsNative._
+import vinyldns.client.components.form._
 
 object ZoneModal {
   case class State(
@@ -127,27 +127,28 @@ object ZoneModal {
         )
       )
 
-    def generateInputFieldProps(P: Props, S: State): List[ValidatedInputField.Props] = {
+    def generateInputFieldProps(P: Props, S: State): List[ValidatedInput.Props] = {
       val baseProps = List(
-        ValidatedInputField.Props(
+        ValidatedInput.Props(
           changeName,
           inputClass = Some("test-name"),
           label = Some("Zone Name"),
           helpText = Some("Name of the DNS Zone, for example vinyldns.io."),
-          initialValue = Some(S.zone.name),
-          validations = Some(InputFieldValidations(required = true, noSpaces = true))
+          value = Some(S.zone.name),
+          validations = Some(Validations(required = true, noSpaces = true))
         ),
-        ValidatedInputField.Props(
+        ValidatedInput.Props(
           changeEmail,
           inputClass = Some("test-email"),
           label = Some("Email"),
           helpText = Some("Zone contact email. Preferably a multi user distribution"),
-          initialValue = Some(S.zone.email),
-          typ = InputType.Email,
-          validations = Some(InputFieldValidations(required = true))
+          value = Some(S.zone.email),
+          encoding = Encoding.Email,
+          validations = Some(Validations(required = true))
         ),
-        ValidatedInputField.Props(
+        ValidatedInput.Props(
           changeAdminGroupId,
+          value = Some(S.zone.adminGroupId),
           inputClass = Some("test-group-admin"),
           label = Some("Admin Group Id"),
           helpText = Some(s"""
@@ -156,120 +157,84 @@ object ZoneModal {
                | all records in the zone, as well as change zone level information
                | and access rules. You can create a new group from the Groups page.
               """.stripMargin),
-          validations = Some(InputFieldValidations(required = true, uuid = true)),
-          datalist = toAdminGroupDatalist(P.groupList),
+          validations = Some(Validations(required = true, uuid = true)),
+          options = toAdminGroupDatalist(P.groupList),
           placeholder =
             if (P.groupList.groups.isEmpty)
               Some("Please make a Vinyl group or get added to one first")
             else Some("Search for a group you are in by name or id"),
-          disabled = P.groupList.groups.isEmpty
+          disabled = P.groupList.groups.isEmpty,
+          inputType = InputType.Datalist
         )
       )
 
-      baseProps ::: generateCustomConnectionFields(S) ::: generateCustomTransferFields(S)
+      baseProps :::
+        generateCustomConnectionFields(S) :::
+        generateCustomConnectionFields(S, isTransfer = true)
     }
 
-    def generateCustomConnectionFields(S: State): List[ValidatedInputField.Props] =
-      if (S.customServer)
+    def generateCustomConnectionFields(
+        S: State,
+        isTransfer: Boolean = false): List[ValidatedInput.Props] =
+      if ((S.customServer && !isTransfer) || (S.customTransfer && isTransfer)) {
+        val connection = if (isTransfer) S.zone.transferConnection else S.zone.connection
         List(
-          ValidatedInputField.Props(
-            changeConnectionKeyName,
+          ValidatedInput.Props(
+            if (isTransfer) changeTransferKeyName else changeConnectionKeyName,
             inputClass = Some("test-connection-key-name"),
-            label = Some("Connection Key Name"),
+            label = Some(s"${if (isTransfer) "Transfer "}Connection Key Name"),
             helpText = Some("""
-                            |The name of the key used to sign requests to the DNS server.
-                            | This is set when the zone is setup in the DNS server, and is used to
-                            | connect to the DNS server when performing updates and transfers.
-                          """.stripMargin),
-            initialValue = S.zone.connection.map(_.keyName),
-            validations = Some(InputFieldValidations(required = true))
+                |The name of the key used to sign requests to the DNS server.
+                | This is set when the zone is setup in the DNS server, and is used to
+                | connect to the DNS server when performing updates and transfers.
+              """.stripMargin),
+            value = connection.map(_.keyName),
+            validations = Some(Validations(required = true))
           ),
-          ValidatedInputField.Props(
-            changeConnectionKey,
+          ValidatedInput.Props(
+            if (isTransfer) changeTransferKey else changeConnectionKey,
             inputClass = Some("test-connection-key"),
-            label = Some("Connection Key"),
+            label = Some(s"${if (isTransfer) "Transfer "}Connection Key"),
             helpText = Some("The secret key used to sign requests sent to the DNS server."),
-            initialValue = S.zone.connection.map(_.key),
-            typ = InputType.Password,
-            validations = Some(InputFieldValidations(required = true))
+            value = connection.map(_.key),
+            encoding = Encoding.Password,
+            validations = Some(Validations(required = true))
           ),
-          ValidatedInputField.Props(
-            changeConnectionServer,
+          ValidatedInput.Props(
+            if (isTransfer) changeTransferServer else changeConnectionServer,
             inputClass = Some("test-connection-server"),
-            label = Some("Connection Server"),
-            helpText = Some(
-              """
-              | The IP Address or host name of the backing DNS server for zone transfers.
-              | This host will be the target for syncing zones with Vinyl. If the port is not specified,
-              | port 53 is assumed.
-            """.stripMargin),
-            initialValue = S.zone.connection.map(_.keyName),
-            validations = Some(InputFieldValidations(required = true))
-          )
-        )
-      else List()
-
-    def generateCustomTransferFields(S: State): List[ValidatedInputField.Props] =
-      if (S.customTransfer)
-        List(
-          ValidatedInputField.Props(
-            changeTransferKeyName,
-            inputClass = Some("test-transfer-key-name"),
-            label = Some("Transfer Connection Key Name"),
-            helpText = Some("""
-                              |The name of the key used to sign requests to the DNS server.
-                              | This is set when the zone is setup in the DNS server, and is used to
-                              | connect to the DNS server when performing updates and transfers.
-                            """.stripMargin),
-            initialValue = S.zone.transferConnection.map(_.keyName),
-            validations = Some(InputFieldValidations(required = true))
-          ),
-          ValidatedInputField.Props(
-            changeTransferKey,
-            inputClass = Some("test-transfer-key"),
-            label = Some("Transfer Connection Key"),
-            helpText = Some("The secret key used to sign requests sent to the DNS server."),
-            initialValue = S.zone.transferConnection.map(_.key),
-            typ = InputType.Password,
-            validations = Some(InputFieldValidations(required = true))
-          ),
-          ValidatedInputField.Props(
-            changeTransferServer,
-            inputClass = Some("test-transfer-server"),
-            label = Some("Transfer Connection Server"),
+            label = Some(s"${if (isTransfer) "Transfer "}Connection Server"),
             helpText = Some(
               """
                 | The IP Address or host name of the backing DNS server for zone transfers.
                 | This host will be the target for syncing zones with Vinyl. If the port is not specified,
                 | port 53 is assumed.
               """.stripMargin),
-            initialValue = S.zone.transferConnection.map(_.keyName),
-            validations = Some(InputFieldValidations(required = true))
+            value = connection.map(_.keyName),
+            validations = Some(Validations(required = true))
           )
         )
-      else List()
+      } else List()
 
     def toggleCustomServer(): Callback =
       bs.modState { s =>
-        s.customServer match {
-          case turningOn if false =>
-            val zone = s.zone.copy(connection = Some(ZoneConnection()))
-            s.copy(zone = zone, customServer = !turningOn)
-          case turningOff if true =>
-            val zone = s.zone.copy(connection = None)
-            s.copy(zone = zone, customServer = !turningOff)
+        if (s.customServer) { // turning off
+          val zone = s.zone.copy(connection = None)
+          s.copy(zone = zone, customServer = false)
+        } else {
+          val zone = s.zone.copy(connection = Some(ZoneConnection()))
+          s.copy(zone = zone, customServer = true)
         }
       }
 
     def toggleCustomTransfer(): Callback =
       bs.modState { s =>
-        s.customTransfer match {
-          case turningOn if false =>
-            val zone = s.zone.copy(transferConnection = Some(ZoneConnection()))
-            s.copy(zone = zone, customTransfer = !turningOn)
-          case turningOff if true =>
-            val zone = s.zone.copy(transferConnection = None)
-            s.copy(zone = zone, customTransfer = !turningOff)
+        if (s.customTransfer) { // turning off
+          val zone = s.zone.copy(transferConnection = None)
+          s.copy(zone = zone, customTransfer = false)
+        } else {
+          val zone = s.zone.copy(transferConnection = Some(ZoneConnection()))
+          s.copy(zone = zone, customTransfer = true)
         }
       }
 
@@ -292,8 +257,8 @@ object ZoneModal {
           }
       )
 
-    def toAdminGroupDatalist(groupList: GroupList): DatalistOptions =
-      groupList.groups.map(g => g.id -> s"${g.name} (${g.id})").toMap
+    def toAdminGroupDatalist(groupList: GroupList): List[(String, String)] =
+      groupList.groups.map(g => g.id -> s"${g.name} (${g.id})")
 
     def changeName(value: String): Callback =
       bs.modState { s =>
