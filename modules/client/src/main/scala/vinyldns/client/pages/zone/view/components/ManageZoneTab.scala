@@ -33,6 +33,7 @@ object ManageZoneTab {
   case class Props(
       zone: ZoneResponse,
       groupList: GroupListResponse,
+      backendIds: List[String],
       http: Http,
       routerCtl: RouterCtl[Page],
       refreshZone: Unit => Callback)
@@ -81,6 +82,12 @@ object ManageZoneTab {
                 <.td(toReadableTimestamp(P.zone.latestSync))
               ),
               <.tr(
+                <.th("Backend ID:"),
+                <.td(
+                  s"""${P.zone.backendId.getOrElse("")}"""
+                )
+              ),
+              <.tr(
                 <.th("DNS Connection:"),
                 <.td(
                   P.zone.connection match {
@@ -120,6 +127,7 @@ object ManageZoneTab {
               _ => makeUpdateFormInvisible,
               _ => P.refreshZone(()),
               P.groupList,
+              P.backendIds,
               Some(P.zone)))
       else TagMod.empty
 
